@@ -33,11 +33,11 @@ window.onload = function() {
         var ping = setInterval(function() {
             if (current < districtCount.length) {
                 send();
-                current++;
+                current += 1;
             } else {
                 stopPing();
             }
-        }, 1000);
+        }, 2000);
 
         function stopPing() {
             clearInterval(ping);
@@ -45,22 +45,31 @@ window.onload = function() {
 
         function send() {
             var xhttp = new XMLHttpRequest();
+            var index = current;
+
             xhttp.onreadystatechange = function() {
-                var locdata = JSON.parse(xhttp.responseText);
-                console.log(locdata[0]);
-                if (locdata && locdata[0]) {
-                    districtCount[current].location = {
-                        'x': Number(locdata[0]["lat"]),
-                        'y': Number(locdata[0]["lon"])
-                    };
+                try {
+                    var locdata = JSON.parse(xhttp.responseText);
+                    console.log(index);
+                    //console.log(locdata[0]);
+                    if (locdata && locdata[0]) {
+                        districtCount[index].location = {
+                            'x': Number(locdata[0]["lat"]),
+                            'y': Number(locdata[0]["lon"])
+                        };
+                    }
+
+                    //console.log(districtCount[current]);
+
+                    document.getElementById('data').innerHTML = JSON.stringify(districtCount);
+
+                } catch (e) {
+                    console.log(e);
+                    return;
                 }
-
-                console.log(districtCount[current]);
-
-                document.getElementById('data').innerHTML = JSON.stringify(districtCount);
             }
 
-            var name = districtCount[current]['name'];
+            var name = districtCount[index]['name'];
 
             xhttp.open("GET", "https://us1.locationiq.com/v1/search.php?key=" + lapiKey + "&q=" + name + "&format=json", true);
             xhttp.send();
