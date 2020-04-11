@@ -70,6 +70,3 @@ window.onload = function() {
 
     fetchDistrictData();
 }
-
-//
-//xhttp.send()
