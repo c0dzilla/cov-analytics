@@ -1,10 +1,87 @@
+<!DOCTYPE html>
 <html>
     <head>
-        Analytics
+        <meta charset='utf-8' />
+        <title>Map Visualization</title>
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+        <!-- 
+            Use Unwired Maps JS & CSS in addition to Mapbox's GL library for the simplest implementation of Unwired Map Tiles
+        -->
+        <script src='https://tiles.unwiredmaps.com/v2/js/unwired-gl.js?v=0.1.6'></script>
+        <link href='https://tiles.unwiredmaps.com/v2/js/unwired-gl.css?v=0.1.6' rel='stylesheet' />
+        
+        <style>
+            body { margin:0px; padding:0px; }
+            #map { position:absolute; top:0px; bottom:0px; width:100%; }
+            /*Example 1, all the CSS is defined here and not in JS*/            
+            .markerWithExternalCss {
+                background-image: url('marker.png');
+                background-size: cover;
+                width: 31px;
+                height: 50px;
+                cursor: pointer;
+            }
+            /*Example 2, most of the CSS is set by JS*/
+            .marker {
+                display: block;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+            }
+        </style>
     </head>
     <body>
-        <div id="data"></div>
+        <div id='map'></div>
+        <script>
+            mapset = true;
+            //Add your Unwired Maps Access Token here (not the API token!)
+            unwired.key = mapboxgl.accessToken = 'pk.0f38dda25827fefcf6b7cb9119817f1b';
+            //Define the map and configure the map's theme
+            var map = new mapboxgl.Map({
+                container: 'map',
+                attributionControl: false, //need this to show a compact attribution icon (i) instead of the whole text
+                style: unwired.getLayer("streets"), //get Unwired's style template
+                zoom: 5,
+                center: [78.4008997, 17.4206485]
+            });
+                        
+            //Add Unwired's Layer Control plugin            
+            //Define layers you want to add to the layer controls; the first element will be the default layer
+            var layers = ["streets", "earth", "hybrid"];
+            map.addControl(new unwiredLayerControl({
+                key: unwired.key,
+                layers: layers
+            }), 'top-left');
+
+            //Add Navigation controls to the map to the top-right corner of the map
+            var nav = new mapboxgl.NavigationControl();
+            map.addControl(nav, 'top-right');
+
+
+            //Add a 'full screen' button to the map
+            map.addControl(new mapboxgl.FullscreenControl());
+            
+            //Add a Scale to the map
+            map.addControl(new mapboxgl.ScaleControl({
+                maxWidth: 80,
+                unit: 'metric' //imperial for miles
+            }));
+
+            //Add Geolocation control to the map (will only render when page is opened over HTTPS)
+            map.addControl(new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            }));
+        </script>
+
+        <script src="coordinates.js"></script>
+        <script src="index.js"></script>
+        <script>
+            fetchDistrictData();
+        </script>
     </body>
-    <script src="coordinates.js"></script>
-    <script src="index.js"></script>
 </html>
