@@ -12,7 +12,13 @@ function updateMap(data) {
 
     // Create a popup
     var popup = new mapboxgl.Popup()
-    .setHTML('District: ' + data.name + ", Count: " + data.count + ", (xy): " + "(" + data.location.x + "," + data.location.y + ")");
+    .setHTML(
+        'Dis: ' + data.name +
+        ", conf: " + data.count +
+        ", rec: " + data.recovered +
+        ", d: " + data.deceased +
+        ", (xy): " + "(" + data.location.x + "," + data.location.y + ")"
+    );
 
     // first create DOM element for the marker
     var el = document.createElement('div');
@@ -30,11 +36,31 @@ function fetchDistrictData() {
         if (this.readyState == 4 && this.status == 200) {
             var data = JSON.parse(xhttp.responseText);
             for (state of data) {
+                var stateEntry = {
+                    'name': state['state'],
+                    'count': 0,
+                    'recovered': 0,
+                    'deceased': 0
+                };
                 for (district of state['districtData']) {
                     var name = district['district'];
+                    var count = district['confirmed'];
+                    var recovered = district['recovered'];
+                    var deceased = district['deceased'];
+
+                    stateEntry.count += count;
+                    stateEntry.recovered += recovered;
+                    stateEntry.deceased += deceased;
+
+                    if (name.toLowerCase() == 'unknown') {
+                        continue;
+                    }
+
                     districtCount.push({
                         'name': name,
-                        'count': district['confirmed']
+                        'count': count,
+                        'recovered': recovered,
+                        'deceased': deceased
                     });
                     if (coordinates[name]) {
                         districtCount[districtCount.length - 1].location = {
@@ -50,9 +76,29 @@ function fetchDistrictData() {
                         });
                     }
                 }
+
+                if (coordinates[stateEntry.name]) {
+                    stateEntry.location = {
+                        x: coordinates[stateEntry.name].location.x,
+                        y: coordinates[stateEntry.name].location.y
+                    }
+                    if (mapset) updateMap(stateEntry);
+                } else {
+                    unknownLocationDistricts.push({
+                        name: stateEntry.name,
+                        pointer: districtCount.length
+                    });
+                }
+
+                districtCount.push(stateEntry);
+                
             }
 
-            document.getElementById('data').innerHTML = JSON.stringify(districtCount);
+            try {
+                document.getElementById('data').innerHTML = JSON.stringify(districtCount);
+            } catch(e) {
+                console.log(e);
+            }
             fetchGeolocations();
         }
     };
@@ -93,9 +139,9 @@ function fetchGeolocations() {
                     };
                 }
 
-                document.getElementById('data').innerHTML = JSON.stringify(districtCount);
-                
                 if (mapset) updateMap(districtCount[index]);
+
+                document.getElementById('data').innerHTML = JSON.stringify(districtCount);
 
             } catch (e) {
                 console.log(e);
