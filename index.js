@@ -1,5 +1,4 @@
-var lapiKey = 'da98a6b7f12d65';
-var gapi = 'AIzaSyA0jFg9bjRxBnLTd4zj4fbYxvoxDT0AdXk';
+var lapiKey = 'FILL_YOUT_OWN';
 var districtCount = [];
 var unknownLocationDistricts = [];
 
