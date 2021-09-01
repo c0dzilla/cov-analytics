@@ -102,7 +102,7 @@ function fetchDistrictData() {
         }
     };
 
-    xhttp.open("GET", "https://api.covid19india.org/v2/state_district_wise.json", true);
+    xhttp.open("GET", "https://data.covid19india.org/v2/state_district_wise.json", true);
     xhttp.send();
 }
 
